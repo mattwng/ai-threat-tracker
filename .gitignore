@@ -21,3 +21,6 @@ build/
 
 # Docker
 *.log
+
+# Claude Code
+.claudeignore

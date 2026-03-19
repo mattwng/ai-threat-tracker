@@ -48,9 +48,9 @@ ai-threat-tracker/
 | Source | Method |
 |--------|--------|
 | CISA KEV | JSON API — filtered by AI keywords |
-| AI Incident Database (AIID) | GraphQL POST (public, no auth) |
-| FireTail AI Breach Tracker | HTML scrape + Next.js fallback |
-| MITRE ATLAS | GitHub JSON download (7-day local cache) |
+| AI Incident Database (AIID) | RSS feed at `/rss.xml` — GraphQL API is browser-only (403) |
+| FireTail AI Breach Tracker | HTML scrape + Next.js `/_next/data/` fallback |
+| MITRE ATLAS | GitHub YAML download (`dist/ATLAS.yaml`, parsed with pyyaml, 7-day local cache) |
 
 ### Static (in static_sources.json)
 - ENISA Threat Landscape (annual, October)
@@ -135,11 +135,10 @@ ssh root@192.168.68.108 "cd /opt/ai-threat-tracker && git pull && cp .env.produc
 curl http://192.168.68.108:5003/api/status
 ```
 
-### NPM Setup
-Add a proxy host in Nginx Proxy Manager:
-- Domain: `threats.illuminait.io`
-- Forward to: `192.168.68.108:5003`
-- SSL: Request Let's Encrypt certificate
+### Routing
+`threats.illuminait.io` is routed via **Cloudflare Tunnel** (not NPM).
+The tunnel points directly to `http://192.168.68.108:5003`. No NPM proxy host
+is needed — Cloudflare handles SSL termination.
 
 ---
 
@@ -162,9 +161,10 @@ will check this field against today's date.
 - Expected — the site is JS-rendered. Data only available if Next.js endpoint
   responds or site adds a JSON API. Degrade gracefully is correct behavior.
 
-### AIID GraphQL returning null fields
-- Normal — older incidents may lack `reports`, `AllegedDeployerOfAISystem`, etc.
-- The fetcher guards all fields with `.get()` to handle this.
+### AIID showing no entries
+- AIID GraphQL API is permanently blocked for non-browser clients (returns 403).
+- Fetcher uses RSS feed at `https://incidentdatabase.ai/rss.xml` instead.
+- If RSS is down, `sources_status["AI Incident Database"]["ok"]` will be False.
 
 ### MITRE ATLAS data stale
 - ATLAS cache is 7 days. Delete `cache/mitre_atlas_cache.json` to force re-download.

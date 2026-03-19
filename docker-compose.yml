@@ -1,0 +1,23 @@
+services:
+  ai-threat-tracker:
+    build: .
+    container_name: ai-threat-tracker
+    restart: unless-stopped
+    ports:
+      - "5003:5003"
+    environment:
+      - TZ=America/Los_Angeles
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    volumes:
+      - threat_cache:/app/cache
+    networks:
+      - threat-network
+
+volumes:
+  threat_cache:
+
+networks:
+  threat-network:
+    driver: bridge

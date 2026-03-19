@@ -1,0 +1,11 @@
+flask
+Flask-Compress
+gunicorn
+APScheduler==3.10.4
+requests
+beautifulsoup4
+lxml
+python-dateutil
+pytz
+python-dotenv
+pyyaml

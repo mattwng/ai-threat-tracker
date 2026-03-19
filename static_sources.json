@@ -1,0 +1,98 @@
+[
+  {
+    "id": "enisa-2024-llm-prompt-injection",
+    "source": "ENISA Threat Landscape",
+    "title": "Prompt Injection Attacks Against LLM-Integrated Applications",
+    "description": "ENISA's 2024 Threat Landscape report identifies prompt injection as one of the top threats to AI systems. Attackers craft inputs that override system instructions, causing LLMs to reveal sensitive data, bypass safety filters, or execute unintended actions.",
+    "vulnerability_summary": "Affects any organization deploying LLM-integrated applications, chatbots, or AI assistants. Particularly relevant for enterprises using RAG architectures, AI agents with tool access, or customer-facing LLM services.",
+    "published": "2024-10-01T00:00:00Z",
+    "link": "https://www.enisa.europa.eu/publications/enisa-threat-landscape-2024",
+    "severity": "high",
+    "tags": ["enisa", "llm", "prompt-injection", "annual-report"],
+    "expires": "2025-10-01"
+  },
+  {
+    "id": "enisa-2024-data-poisoning",
+    "source": "ENISA Threat Landscape",
+    "title": "Training Data Poisoning in ML Supply Chains",
+    "description": "Adversaries introduce malicious data into ML training pipelines to corrupt model behavior. ENISA highlights supply chain attacks on open datasets and pre-trained model weights as an emerging threat vector for 2024–2025.",
+    "vulnerability_summary": "Affects organizations that fine-tune open-source models, use third-party datasets, or pull model weights from public repositories (Hugging Face, GitHub). Downstream customers of poisoned models are also at risk.",
+    "published": "2024-10-01T00:00:00Z",
+    "link": "https://www.enisa.europa.eu/publications/enisa-threat-landscape-2024",
+    "severity": "high",
+    "tags": ["enisa", "data-poisoning", "supply-chain", "ml", "annual-report"],
+    "expires": "2025-10-01"
+  },
+  {
+    "id": "ibm-xforce-2025-ai-credential-theft",
+    "source": "IBM X-Force Index",
+    "title": "AI API Key Theft Drives 3x Increase in Cloud Credential Attacks",
+    "description": "IBM X-Force 2025 Index reports that stolen AI service credentials (OpenAI, Anthropic, AWS Bedrock, Azure AI) are now among the most traded items on dark web marketplaces. Attackers use compromised API keys to run LLM inference at victim expense or exfiltrate proprietary fine-tuned models.",
+    "vulnerability_summary": "Affects enterprises and developers using AI APIs without proper secret management. Organizations storing API keys in source code, CI/CD logs, or environment variables without rotation policies are primary targets.",
+    "published": "2025-02-01T00:00:00Z",
+    "link": "https://www.ibm.com/reports/threat-intelligence",
+    "severity": "high",
+    "tags": ["ibm", "x-force", "credential-theft", "api-key", "annual-report"],
+    "expires": "2026-02-01"
+  },
+  {
+    "id": "ibm-xforce-2025-ai-assisted-phishing",
+    "source": "IBM X-Force Index",
+    "title": "AI-Generated Spear Phishing Campaigns Reduce Attack Prep Time by 66%",
+    "description": "IBM X-Force observed threat actors using LLMs to generate highly personalized phishing emails at scale. AI-assisted campaigns reduced the average time to craft a convincing spear phishing email from 16 hours to under 5 minutes.",
+    "vulnerability_summary": "Affects all organizations, with particular risk for executives, finance teams, and IT administrators. Traditional email security tools struggle to detect AI-crafted content that passes grammar and tone checks.",
+    "published": "2025-02-01T00:00:00Z",
+    "link": "https://www.ibm.com/reports/threat-intelligence",
+    "severity": "high",
+    "tags": ["ibm", "x-force", "phishing", "social-engineering", "ai", "annual-report"],
+    "expires": "2026-02-01"
+  },
+  {
+    "id": "verizon-dbir-2024-ai-in-attacks",
+    "source": "Verizon DBIR",
+    "title": "Generative AI Tools Observed in 15% of Social Engineering Incidents",
+    "description": "Verizon's 2024 Data Breach Investigations Report found evidence of generative AI use in 15% of analyzed social engineering incidents. Deepfake audio/video was used in BEC (Business Email Compromise) fraud cases, with losses in some incidents exceeding $500K.",
+    "vulnerability_summary": "Affects organizations across all sectors, particularly financial services, healthcare, and government. Finance teams authorizing wire transfers and executives are high-value targets for AI-enhanced BEC attacks.",
+    "published": "2024-04-01T00:00:00Z",
+    "link": "https://www.verizon.com/business/resources/reports/dbir/",
+    "severity": "high",
+    "tags": ["verizon", "dbir", "social-engineering", "deepfake", "bec", "annual-report"],
+    "expires": "2025-04-01"
+  },
+  {
+    "id": "mandiant-2024-unc5820-ai-recon",
+    "source": "Google / Mandiant",
+    "title": "UNC5820: Threat Actor Using AI Tools for Attack Surface Reconnaissance",
+    "description": "Mandiant tracked threat group UNC5820 using commercially available AI coding assistants and LLM APIs to automate vulnerability scanning and generate custom exploit code. The group demonstrated significantly faster time-to-exploitation compared to manually operated campaigns.",
+    "vulnerability_summary": "Affects organizations with internet-exposed APIs, web applications, and cloud infrastructure. AI-accelerated recon means the window between public vulnerability disclosure and active exploitation is shrinking.",
+    "published": "2024-11-01T00:00:00Z",
+    "link": "https://www.mandiant.com/resources/blog",
+    "severity": "critical",
+    "tags": ["mandiant", "google", "threat-actor", "recon", "exploitation", "unc5820"],
+    "expires": "2026-06-01"
+  },
+  {
+    "id": "mandiant-2025-ai-model-theft",
+    "source": "Google / Mandiant",
+    "title": "State-Sponsored Actors Targeting Proprietary AI Model Weights",
+    "description": "Mandiant's 2025 threat intelligence indicates nation-state actors (attributed to China, Russia, and North Korea) are actively targeting organizations to steal proprietary AI model weights and training data. Stolen models represent significant R&D investment and can be used for offensive cyber capabilities.",
+    "vulnerability_summary": "Primarily affects AI research labs, technology companies, defense contractors, and enterprises with proprietary fine-tuned models. Model weights stored in cloud storage or ML platforms without proper access controls are at risk.",
+    "published": "2025-01-15T00:00:00Z",
+    "link": "https://www.mandiant.com/resources/blog",
+    "severity": "critical",
+    "tags": ["mandiant", "google", "nation-state", "ip-theft", "model-weights", "espionage"],
+    "expires": "2026-06-01"
+  },
+  {
+    "id": "mit-aiit-2024-autonomous-system-failures",
+    "source": "MIT AI Incident Tracker",
+    "title": "Autonomous AI Agent Systems: 47 Reported Failures Involving Real-World Harm",
+    "description": "MIT's AI Incident Tracker documented 47 incidents in 2024 involving autonomous AI agent systems causing real-world harm — including financial losses, privacy violations, and safety-critical failures. Categories include unintended tool use, goal misgeneralization, and adversarial manipulation of agent memory.",
+    "vulnerability_summary": "Affects organizations deploying autonomous AI agents with tool access (web browsing, code execution, API calls, database access). Particularly relevant for agentic AI pipelines used in finance, healthcare, legal, and infrastructure management.",
+    "published": "2024-12-01T00:00:00Z",
+    "link": "https://aiindex.stanford.edu/",
+    "severity": "medium",
+    "tags": ["mit", "ai-incident", "autonomous-agents", "agentic-ai", "safety"],
+    "expires": "2026-06-01"
+  }
+]

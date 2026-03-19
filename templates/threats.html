@@ -443,11 +443,11 @@
   </div>
 </div>
 
-<!-- ── Tag Filter Bar ─────────────────────────────────────────────────────── -->
+<!-- ── Severity Filter Bar ────────────────────────────────────────────────── -->
 <div class="filter-bar" id="filterBar" style="display:none">
-  <span class="filter-label">Filter:</span>
-  <div id="filterTags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-  <span class="filter-clear" id="filterClear" onclick="clearFilter()" style="display:none">✕ clear</span>
+  <span class="filter-label">Severity:</span>
+  <div id="severityPills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  <span class="filter-clear" id="filterClear" onclick="clearFilter()" style="display:none">✕ all</span>
 </div>
 
 <!-- ── Main ───────────────────────────────────────────────────────────────── -->
@@ -516,7 +516,7 @@ function render(data) {
   updateHeader(data);
   updateStatusBar(data.sources_status || {});
   renderSections(data.grouped || {});
-  buildFilterTags(data.grouped || {});
+  buildSeverityFilter(data.grouped || {});
 }
 
 function updateHeader(data) {
@@ -546,7 +546,9 @@ function updateStatusBar(sourcesStatus) {
   const btn = document.getElementById('refreshBtn');
   let html = '';
 
-  for (const [name, info] of Object.entries(sourcesStatus)) {
+  const orderedKeys = [...SOURCE_ORDER.filter(k => k in sourcesStatus), ...Object.keys(sourcesStatus).filter(k => !SOURCE_ORDER.includes(k))];
+
+  for (const [name, info] of orderedKeys.map(k => [k, sourcesStatus[k]])) {
     const type = info.type || 'live';
     let cls, dot, label;
     if (type === 'static') {
@@ -614,7 +616,7 @@ function renderCard(entry) {
   const tagAttrs = tags.map(t => escAttr(t)).join(',');
 
   return `
-  <div class="threat-card" data-tags="${tagAttrs}" data-id="${escAttr(entry.id)}">
+  <div class="threat-card" data-tags="${tagAttrs}" data-severity="${sev}" data-id="${escAttr(entry.id)}">
     <div class="card-header">
       <span class="severity-badge sev-${sev}">${sev}</span>
       <span class="card-title">${escHtml(entry.title)}</span>
@@ -628,48 +630,47 @@ function renderCard(entry) {
     <div class="card-footer">
       <span class="card-date">${escHtml(pubDate)}</span>
       <div class="card-tags">
-        ${tags.map(t => `<span class="card-tag" onclick="filterByTag('${escAttr(t)}')">${escHtml(t)}</span>`).join('')}
+        ${tags.map(t => `<span class="card-tag">${escHtml(t)}</span>`).join('')}
       </div>
       ${entry.link ? `<a class="card-link" href="${escAttr(entry.link)}" target="_blank" rel="noopener">Details →</a>` : ''}
     </div>
   </div>`;
 }
 
-// ── Tag filter ────────────────────────────────────────────────────────────────
-function buildFilterTags(grouped) {
-  const tagCount = {};
+// ── Severity filter ───────────────────────────────────────────────────────────
+const SEV_ORDER = ['critical', 'high', 'medium', 'low'];
+const SEV_COLORS = { critical: 'var(--crit)', high: 'var(--high)', medium: 'var(--med)', low: 'var(--low)' };
+
+function buildSeverityFilter(grouped) {
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
   for (const entries of Object.values(grouped)) {
     for (const e of entries) {
-      for (const t of (e.tags || [])) {
-        tagCount[t] = (tagCount[t] || 0) + 1;
-      }
+      const s = (e.severity || 'medium').toLowerCase();
+      if (s in counts) counts[s]++;
     }
   }
-  const topTags = Object.entries(tagCount).sort((a,b) => b[1]-a[1]).slice(0, 14).map(([t]) => t);
   const fb = document.getElementById('filterBar');
-  const ft = document.getElementById('filterTags');
-
-  if (topTags.length === 0) { fb.style.display = 'none'; return; }
+  const sp = document.getElementById('severityPills');
+  const hasCounts = Object.values(counts).some(c => c > 0);
+  if (!hasCounts) { fb.style.display = 'none'; return; }
   fb.style.display = 'flex';
-  ft.innerHTML = topTags.map(t =>
-    `<span class="filter-tag" id="ft-${slugify(t)}" onclick="filterByTag('${escAttr(t)}')">${escHtml(t)}</span>`
+  sp.innerHTML = SEV_ORDER.filter(s => counts[s] > 0).map(s =>
+    `<span class="filter-tag" id="sev-pill-${s}" onclick="filterBySeverity('${s}')"
+      style="border-color:${SEV_COLORS[s]}33;color:${SEV_COLORS[s]}">
+      ${s} <span style="opacity:0.6">(${counts[s]})</span>
+    </span>`
   ).join('');
 }
 
-function filterByTag(tag) {
-  if (_activeTag === tag) { clearFilter(); return; }
-  _activeTag = tag;
-
-  // Highlight active tag in filter bar
+function filterBySeverity(sev) {
+  if (_activeTag === sev) { clearFilter(); return; }
+  _activeTag = sev;
   document.querySelectorAll('.filter-tag').forEach(el => el.classList.remove('active'));
-  const ft = document.getElementById(`ft-${slugify(tag)}`);
-  if (ft) ft.classList.add('active');
+  const pill = document.getElementById(`sev-pill-${sev}`);
+  if (pill) pill.classList.add('active');
   document.getElementById('filterClear').style.display = 'inline';
-
-  // Show/hide cards
   document.querySelectorAll('.threat-card').forEach(card => {
-    const tags = (card.dataset.tags || '').split(',');
-    card.classList.toggle('hidden', !tags.includes(tag));
+    card.classList.toggle('hidden', card.dataset.severity !== sev);
   });
 }
 
@@ -691,7 +692,12 @@ function toggleSection(slug, source) {
 }
 
 function getCollapsedState() {
-  try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); } catch(_){ return new Set(); }
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored !== null) {
+    try { return new Set(JSON.parse(stored)); } catch(_) { return new Set(); }
+  }
+  // First visit: default static sources to collapsed, live sources open
+  return new Set(['ENISA Threat Landscape', 'IBM X-Force Index', 'Verizon DBIR', 'Google / Mandiant', 'MIT AI Incident Tracker']);
 }
 
 function saveCollapsedState(s) {

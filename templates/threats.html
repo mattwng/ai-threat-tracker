@@ -12,12 +12,12 @@
       --surface2:    #1e293b;   /* slate-800 */
       --border:      #334155;   /* slate-700 */
       --border-dim:  #1e293b;   /* slate-800 */
-      --accent:      #06b6d4;   /* cyan-500 */
-      --accent-hi:   #22d3ee;   /* cyan-400 */
-      --accent-dim:  #0891b2;   /* cyan-600 */
-      --text:        #cbd5e1;   /* slate-300 */
-      --text-dim:    #64748b;   /* slate-500 */
-      --text-bright: #f1f5f9;   /* slate-100 */
+      --accent:      #22d3ee;   /* cyan-400 — lifted for readability */
+      --accent-hi:   #67e8f9;   /* cyan-300 */
+      --accent-dim:  #06b6d4;   /* cyan-500 — was cyan-600, now more visible */
+      --text:        #e2e8f0;   /* slate-200 — lifted from slate-300 */
+      --text-dim:    #94a3b8;   /* slate-400 — lifted from slate-500 */
+      --text-bright: #f8fafc;   /* slate-50 */
       /* Severity */
       --crit:  #f43f5e;
       --high:  #f97316;
@@ -476,12 +476,54 @@
     .footer-note { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
 
     /* ── Responsive ───────────────────────────────── */
-    @media (max-width: 640px) {
-      .header { padding: 0 16px; }
-      .container { padding: 16px; }
-      .filter-bar { padding: 8px 16px; }
+
+    /* Tablet (≤ 768px) */
+    @media (max-width: 768px) {
+      .header { padding: 0 18px; }
+      .header-inner { gap: 10px; padding: 14px 0; }
+      .brand-logo { width: 32px; height: 32px; }
+      .brand-name { font-size: 17px; }
+      .page-title { font-size: 15px; }
+      .container { padding: 16px 18px; }
+      .filter-bar { padding: 8px 18px; top: 108px; }
+      .threat-card { padding: 14px 15px; }
+      .card-footer { flex-wrap: wrap; gap: 6px; }
+      .card-link { margin-left: 0; }
+    }
+
+    /* Phone (≤ 480px) */
+    @media (max-width: 480px) {
+      .header { padding: 0 12px; }
+      .header-inner { gap: 8px; padding: 10px 0; }
+      .brand-logo { width: 28px; height: 28px; }
+      .brand-name { font-size: 15px; }
       .brand-divider, .page-title { display: none; }
-      .footer { padding: 16px; flex-direction: column; gap: 6px; text-align: center; }
+      .header-meta { gap: 6px; }
+      .last-updated { font-size: 11px; }
+      .refresh-btn { font-size: 10px; padding: 4px 10px; }
+      .status-bar { gap: 4px; }
+      .source-pill { font-size: 11px; padding: 3px 8px; }
+      .container { padding: 12px; }
+      .filter-bar { padding: 7px 12px; top: 92px; gap: 6px; }
+      .filter-label { display: none; }
+      .filter-tag { font-size: 11px; padding: 3px 9px; }
+      .filter-clear { font-size: 11px; }
+      .source-header { padding: 10px 12px; }
+      .source-name { font-size: 12px; }
+      .threat-card { padding: 12px; }
+      .card-title { font-size: 13px; }
+      .card-description { font-size: 12px; }
+      .card-affected { font-size: 11px; }
+      .card-footer { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .card-link { align-self: flex-start; }
+      .footer { padding: 14px 12px; flex-direction: column; gap: 6px; text-align: center; }
+      .footer-note { display: none; }
+    }
+
+    /* Very small phones (≤ 360px) */
+    @media (max-width: 360px) {
+      .brand-name { font-size: 13px; }
+      .card-tags { display: none; }
     }
   </style>
 </head>
@@ -521,7 +563,7 @@
   <span class="filter-label">Severity:</span>
   <div id="severityPills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
   <span class="filter-clear" id="filterClear" onclick="clearFilter()" style="display:none">✕ show all</span>
-  <span class="filter-clear" style="margin-left:auto" onclick="collapseAll()">⊟ collapse all</span>
+  <span class="filter-clear" id="collapseToggle" style="margin-left:auto" onclick="toggleCollapseAll()">⊟ collapse all</span>
 </div>
 
 <!-- ── Main ───────────────────────────────────────────────────────────────── -->
@@ -551,6 +593,7 @@
 let _data = null;
 let _activeTag = null;
 let _pollTimer = null;
+let _allCollapsed = false;
 const STORAGE_KEY = 'att_collapsed';
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
@@ -783,16 +826,28 @@ function saveCollapsedState(s) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...s])); } catch(_) {}
 }
 
-function collapseAll() {
+function toggleCollapseAll() {
+  const btn = document.getElementById('collapseToggle');
   const state = new Set();
-  document.querySelectorAll('.source-section').forEach(el => {
-    el.classList.add('collapsed');
-    const slug = el.id.replace('sec-', '');
-    // Recover source name from the header span
-    const nameEl = el.querySelector('.source-name');
-    if (nameEl) state.add(nameEl.textContent.trim());
-  });
-  saveCollapsedState(state);
+  if (!_allCollapsed) {
+    // Collapse all
+    document.querySelectorAll('.source-section').forEach(el => {
+      el.classList.add('collapsed');
+      const nameEl = el.querySelector('.source-name');
+      if (nameEl) state.add(nameEl.textContent.trim());
+    });
+    saveCollapsedState(state);
+    _allCollapsed = true;
+    if (btn) btn.textContent = '⊞ expand all';
+  } else {
+    // Expand all
+    document.querySelectorAll('.source-section').forEach(el => {
+      el.classList.remove('collapsed');
+    });
+    saveCollapsedState(new Set());
+    _allCollapsed = false;
+    if (btn) btn.textContent = '⊟ collapse all';
+  }
 }
 
 // ── Refresh ───────────────────────────────────────────────────────────────────
